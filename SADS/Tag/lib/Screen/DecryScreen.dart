@@ -1,12 +1,11 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:beacon_simulator/Model/ElGamal.dart';
 import 'package:beacon_simulator/Screen/BeaconScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import 'package:http/http.dart' as http;
 
 class DecryScreen extends StatefulWidget {
   const DecryScreen({Key? key}) : super(key: key);
@@ -17,7 +16,7 @@ class DecryScreen extends StatefulWidget {
 
 class _DecryScreenState extends State<DecryScreen> {
   TextEditingController _key = TextEditingController();
-  Map<dynamic, dynamic> beaconData = Map();
+  Map<dynamic, dynamic> beaconData = {};
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +136,7 @@ class _DecryScreenState extends State<DecryScreen> {
                   controller: _key,
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return '입력해주세요..';
+                      return 'Please enter a value..';
                     } else {
                       return null;
                     }
@@ -145,16 +144,13 @@ class _DecryScreenState extends State<DecryScreen> {
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                    contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                     enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Color.fromRGBO(224, 224, 224, 1)),
+                      borderSide: BorderSide(color: Color.fromRGBO(224, 224, 224, 1)),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     border: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Color.fromRGBO(224, 224, 224, 1)),
+                      borderSide: BorderSide(color: Color.fromRGBO(224, 224, 224, 1)),
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
@@ -176,24 +172,14 @@ class _DecryScreenState extends State<DecryScreen> {
                     List en2 = [en['y1'], en['y2']];
 
                     beaconData['decry'] = e.decrypt(en2, int.parse(_key.text));
-                    print(beaconData['decry'][0].toString());
+                    print("beaconData['decry'][0].toString():"+beaconData['decry'][0].toString());
+                    print(beaconData['decry']);
 
-                    Uri url = Uri.parse(
-                        'https://asia-northeast3-beacon-330502.cloudfunctions.net/createRandList?seed=' +
-                            beaconData['decry'][0].toString());
+                    List<double> randomList = createRandomList(beaconData['decry'][0]);
 
-                    http.Response response = await http.get(url);
-                    try {
-                      if (response.statusCode == 200) {
-                        String data = response.body;
-                        var decodedData = jsonDecode(data);
-                        beaconData['data'] = decodedData['data'];
-                        print(decodedData);
-                        Get.to(BeaconScreen(data: beaconData));
-                      }
-                    } catch (e) {
-                      print(e);
-                    }
+                    beaconData['data'] = randomList;
+                    print("randomList: $randomList");
+                    Get.to(BeaconScreen(data: beaconData));
                   },
                   child: Text('Create Beacon',
                       style: TextStyle(color: Colors.white, fontSize: 16)),
@@ -204,5 +190,20 @@ class _DecryScreenState extends State<DecryScreen> {
         }
       },
     );
+  }
+
+  List<double> createRandomList(int seed) {
+    Random random = Random(seed);
+    List<double> timeList = [];
+
+    for (int i = 0; i < 1000; i++) {
+      if (i % 2 == 0) {
+        timeList.add(random.nextInt(6) + 2 + 0.5);
+      } else {
+        timeList.add(random.nextInt(3) + 3 - 0.5);
+      }
+    }
+
+    return timeList;
   }
 }

@@ -15,7 +15,7 @@ class Server():
     def __init__(self, HOST, PORT = 9999):
         self.HOST = HOST
         self.PORT = PORT
-        cred = credentials.Certificate('beacon-bbd26-firebase-adminsdk-wsvjj-82e61b4482.json')
+        cred = credentials.Certificate('iot-lab-sads-firebase-adminsdk-vosh8-bf7b8602ab.json')
         firebase_admin.initialize_app(cred)
         
         self.cr = CreateRandom()
@@ -80,8 +80,11 @@ class Server():
     def receiveFromAP(self):
         flag = False
         while True:
+            print("receiveFromAP Check")
             ackMsg = self.client_socket.recv(1024)
+            print("askMsg received")
             decodeMsg = ackMsg.decode("utf-8")
+            print(decodeMsg)
             splitedData = decodeMsg.split(',')
             item = {"time": float(splitedData[1]), "uuid": splitedData[2], "mac": splitedData[3], "rssi": int(splitedData[4])}
 

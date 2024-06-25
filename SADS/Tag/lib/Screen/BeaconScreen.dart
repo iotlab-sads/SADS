@@ -3,6 +3,7 @@ import 'package:beacon_broadcast/beacon_broadcast.dart';
 import 'package:beacon_simulator/Model/FireStore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class BeaconScreen extends StatefulWidget {
   final Map<dynamic, dynamic> data;
@@ -35,24 +36,40 @@ class _BeaconScreenState extends State<BeaconScreen> {
   void initState() {
     super.initState();
 
-    fireStore = new FireStore();
+    fireStore = FireStore();
 
-    beaconBroadcast
-        .checkTransmissionSupported()
-        .then((isTransmissionSupported) {
-      setState(() {
-        _isTransmissionSupported = isTransmissionSupported;
+    _requestPermissions().then((_) {
+      beaconBroadcast
+          .checkTransmissionSupported()
+          .then((isTransmissionSupported) {
+        setState(() {
+          _isTransmissionSupported = isTransmissionSupported;
+        });
       });
-    });
 
-    _isAdvertisingSubscription =
-        beaconBroadcast.getAdvertisingStateChange().listen((isAdvertising) {
-      setState(() {
-        _isAdvertising = isAdvertising;
+      _isAdvertisingSubscription =
+          beaconBroadcast.getAdvertisingStateChange().listen((isAdvertising) {
+        setState(() {
+          _isAdvertising = isAdvertising;
+        });
       });
-    });
 
-    uuid = widget.data['uuid'];
+      uuid = widget.data['uuid'];
+    });
+  }
+
+  Future<void> _requestPermissions() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.bluetooth,
+      Permission.bluetoothAdvertise,
+      Permission.location,
+    ].request();
+
+    if (statuses[Permission.bluetoothAdvertise]!.isDenied ||
+        statuses[Permission.location]!.isDenied) {
+      // 권한이 거부된 경우 처리
+      openAppSettings();
+    }
   }
 
   @override

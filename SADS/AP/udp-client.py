@@ -45,7 +45,7 @@ def initSetting():
     global client
 
     serverHost = '192.168.219.104'
-    PORT = 9999
+    PORT = 9999w
    
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((serverHost, PORT))

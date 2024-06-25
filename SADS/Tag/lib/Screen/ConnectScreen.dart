@@ -44,7 +44,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
           return new AlertDialog(
             content: new Text(title! + ' ' + body!),
             actions: <Widget>[
-              new FlatButton(
+              new TextButton(
                 child: new Text(
                   '확인',
                   style: TextStyle(
@@ -77,7 +77,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
         return new AlertDialog(
           content: Text("Create Private Key: ${e.a}"),
           actions: <Widget>[
-            new FlatButton(
+            new TextButton(
               child: new Text(
                 '확인',
                 style: TextStyle(
